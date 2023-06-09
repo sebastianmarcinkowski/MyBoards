@@ -24,12 +24,15 @@ namespace MyBoards.Entities
                 p.Property(x => x.Activity).HasMaxLength(200);
                 p.Property(x => x.RemaingWork).HasPrecision(14, 2);
                 p.Property(x => x.Priority).HasDefaultValue(1);
+
                 p.HasMany(x => x.Comments)
                 .WithOne(c => c.WorkItem)
                 .HasForeignKey(c => c.WorkItemId);
+
                 p.HasOne(x => x.Author)
                 .WithMany(u => u.WorkItems)
                 .HasForeignKey(w => w.AuthorId);
+
                 p.HasMany(x => x.Tags)
                 .WithMany(t => t.WorkItems)
                 .UsingEntity<WorkItemTag>(
@@ -45,6 +48,10 @@ namespace MyBoards.Entities
                         wit.Property(x => x.PublicationDate).HasDefaultValueSql("getutcdate()");
                     }
                  );
+
+                p.HasOne(s => s.State)
+                .WithMany(wit => wit.WorkItems)
+                .HasForeignKey(wit => wit.StateId);
             });
 
             modelBuilder.Entity<Comment>(p =>
@@ -57,6 +64,12 @@ namespace MyBoards.Entities
                 .HasOne(u => u.Address)
                 .WithOne(a => a.User)
                 .HasForeignKey<Address>(a => a.UserId);
+
+            modelBuilder.Entity<State>(p =>
+            {
+                p.Property(x => x.Value).IsRequired();
+                p.Property(x => x.Value).HasColumnType("varchar(50)");
+            });
         }
     }
 }
