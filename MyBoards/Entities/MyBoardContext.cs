@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.Xml;
 
 namespace MyBoards.Entities
 {
@@ -23,6 +24,27 @@ namespace MyBoards.Entities
                 p.Property(x => x.Activity).HasMaxLength(200);
                 p.Property(x => x.RemaingWork).HasPrecision(14, 2);
                 p.Property(x => x.Priority).HasDefaultValue(1);
+                p.HasMany(x => x.Comments)
+                .WithOne(c => c.WorkItem)
+                .HasForeignKey(c => c.WorkItemId);
+                p.HasOne(x => x.Author)
+                .WithMany(u => u.WorkItems)
+                .HasForeignKey(w => w.AuthorId);
+                p.HasMany(x => x.Tags)
+                .WithMany(t => t.WorkItems)
+                .UsingEntity<WorkItemTag>(
+                    w => w.HasOne(wit => wit.Tag)
+                    .WithMany()
+                    .HasForeignKey(wit => wit.TagId),
+                    w => w.HasOne(wit => wit.WorkItem)
+                    .WithMany()
+                    .HasForeignKey(wit => wit.WorkItemId),
+                    wit =>
+                    {
+                        wit.HasKey(x => new { x.TagId, x.WorkItemId });
+                        wit.Property(x => x.PublicationDate).HasDefaultValueSql("getutcdate()");
+                    }
+                 );
             });
 
             modelBuilder.Entity<Comment>(p =>
