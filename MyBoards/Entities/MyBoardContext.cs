@@ -20,7 +20,6 @@ namespace MyBoards.Entities
         {
             modelBuilder.Entity<WorkItem>(p =>
             {
-                p.Property(x => x.State).IsRequired();
                 p.Property(x => x.Area).HasColumnType("varchar(200)");
                 p.Property(x => x.IterationPath).HasColumnName("Iteration_Path");
                 p.Property(x => x.Priority).HasDefaultValue(1);
