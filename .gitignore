@@ -363,4 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # ConnectionStrings
-/MyBoards/appsettings.Development.json
+# /MyBoards/appsettings.Development.json
