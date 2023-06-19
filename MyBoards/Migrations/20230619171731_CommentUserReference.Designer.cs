@@ -12,8 +12,8 @@ using MyBoards.Entities;
 namespace MyBoards.Migrations
 {
     [DbContext(typeof(MyBoardContext))]
-    [Migration("20230613172309_UserFullName")]
-    partial class UserFullName
+    [Migration("20230619171731_CommentUserReference")]
+    partial class CommentUserReference
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -62,8 +62,8 @@ namespace MyBoards.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Author")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
@@ -81,6 +81,8 @@ namespace MyBoards.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
 
                     b.HasIndex("WorkItemId");
 
@@ -129,7 +131,10 @@ namespace MyBoards.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -253,11 +258,19 @@ namespace MyBoards.Migrations
 
             modelBuilder.Entity("MyBoards.Entities.Comment", b =>
                 {
+                    b.HasOne("MyBoards.Entities.User", "Author")
+                        .WithMany("Comments")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("MyBoards.Entities.WorkItem", "WorkItem")
                         .WithMany("Comments")
                         .HasForeignKey("WorkItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Author");
 
                     b.Navigation("WorkItem");
                 });
@@ -308,6 +321,8 @@ namespace MyBoards.Migrations
             modelBuilder.Entity("MyBoards.Entities.User", b =>
                 {
                     b.Navigation("Address");
+
+                    b.Navigation("Comments");
 
                     b.Navigation("WorkItems");
                 });
